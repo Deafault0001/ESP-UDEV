@@ -1,0 +1,423 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>OBSIDIAN // Secure Frequency Link</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        oled: '#000000',
+                        surface: '#0a0a0a',
+                        card: '#121212',
+                        bordercolor: '#262626',
+                    },
+                    fontFamily: {
+                        mono: ['Courier New', Courier, monospace],
+                        sans: ['Inter', sans-serif]
+                    }
+                }
+            }
+        }
+    </script>
+    <!-- FontAwesome for crisp minimalist icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        body {
+            background-color: #000000;
+            color: #ffffff;
+            font-family: 'Inter', sans-serif;
+            overflow-x: hidden;
+        }
+        /* Custom scrollbars & glass styling */
+        .glass-panel {
+            background: rgba(18, 18, 18, 0.7);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+        }
+        .glow-effect {
+            box-shadow: 0 0 30px rgba(255, 255, 255, 0.03);
+        }
+        @keyframes pulse-slow {
+            0%, 100% { opacity: 0.2; }
+            50% { opacity: 0.6; }
+        }
+        .signal-wave {
+            animation: pulse-slow 3s infinite ease-in-out;
+        }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col justify-between selection:bg-white selection:text-black">
+
+    <!-- Top Navigation Header -->
+    <header class="w-full border-b border-bordercolor px-6 py-4 flex items-center justify-between glass-panel sticky top-0 z-50">
+        <div class="flex items-center space-x-3">
+            <div class="w-3 h-3 bg-white rounded-full animate-ping"></div>
+            <span class="font-mono tracking-widest text-sm font-semibold text-white">OBSIDIAN_SECURE // v2.4</span>
+        </div>
+        <div class="hidden md:flex items-center space-x-6 text-xs font-mono text-zinc-400">
+            <div>STATUS: <span id="nav-status" class="text-white font-bold">STANDBY</span></div>
+            <div>PRIVACY: <span class="text-emerald-400 font-bold">ZERO-LOG / UNTRACEABLE</span></div>
+            <div>LATENCY: <span id="nav-latency" class="text-white font-bold">8ms</span></div>
+        </div>
+        <div class="flex items-center space-x-2">
+            <button id="theme-btn" class="px-3 py-1.5 rounded-lg border border-bordercolor text-xs font-mono hover:bg-white hover:text-black transition-all">
+                <i class="fa-solid fa-user-secret mr-1"></i> UNTRACEABLE P2P
+            </button>
+        </div>
+    </header>
+
+    <!-- Main Dynamic Application Container -->
+    <main class="flex-1 max-w-7xl w-full mx-auto p-4 md:p-8 flex flex-col justify-center items-center">
+
+        <!-- SCREEN 1: Frequency Tuning & Entry Screen -->
+        <div id="screen-tuning" class="w-full max-w-md mx-auto glass-panel p-8 rounded-2xl glow-effect transition-all duration-500">
+            <div class="text-center mb-8">
+                <div class="w-16 h-16 mx-auto mb-4 rounded-full bg-zinc-900 border border-zinc-800 flex items-center justify-center">
+                    <i class="fa-solid fa-radio text-white text-2xl"></i>
+                </div>
+                <h1 class="text-xl font-bold tracking-wider font-mono">OBSIDIAN FREQUENCY</h1>
+                <p class="text-xs text-zinc-400 mt-2">Enter your username and tune into a secure frequency for untraceable peer-to-peer communication with zero server logs.</p>
+            </div>
+
+            <form id="tuning-form" class="space-y-6" onsubmit="event.preventDefault(); joinFrequency();">
+                <div>
+                    <label class="block text-xs font-mono text-zinc-400 mb-2 uppercase tracking-wider">Radio Frequency (MHz)</label>
+                    <div class="relative flex items-center bg-black border border-bordercolor rounded-xl overflow-hidden focus-within:border-white transition-all">
+                        <button type="button" onclick="adjustFrequency(-0.1)" class="px-4 py-3 bg-zinc-900/50 text-zinc-400 hover:text-white hover:bg-zinc-800 transition-all font-mono">
+                            <i class="fa-solid fa-minus text-xs"></i>
+                        </button>
+                        <input type="number" id="frequency-input" step="0.01" min="100.00" max="999.99" value="201.04" required 
+                            class="w-full bg-transparent text-center py-3 text-white font-mono text-xl tracking-widest focus:outline-none">
+                        <span class="pr-3 text-xs font-mono text-zinc-500">MHz</span>
+                        <button type="button" onclick="adjustFrequency(0.1)" class="px-4 py-3 bg-zinc-900/50 text-zinc-400 hover:text-white hover:bg-zinc-800 transition-all font-mono">
+                            <i class="fa-solid fa-plus text-xs"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block text-xs font-mono text-zinc-400 mb-2 uppercase tracking-wider">Username</label>
+                    <input type="text" id="username-input" required 
+                        class="w-full bg-black border border-bordercolor rounded-xl px-4 py-3 text-white font-mono placeholder-zinc-700 focus:outline-none focus:border-white transition-all text-sm"
+                        placeholder="e.g. Alex">
+                </div>
+
+                <div class="grid grid-cols-2 gap-4 pt-2">
+                    <button type="button" onclick="randomizeFrequency()" class="w-full py-3 px-4 rounded-xl border border-bordercolor text-xs font-mono hover:bg-zinc-900 transition-all text-zinc-300">
+                        <i class="fa-solid fa-dice mr-1"></i> RANDOM
+                    </button>
+                    <button type="submit" class="w-full py-3 px-4 rounded-xl bg-white text-black font-semibold font-mono text-xs hover:bg-zinc-200 transition-all flex items-center justify-center space-x-2">
+                        <span>CONNECT</span>
+                        <i class="fa-solid fa-arrow-right"></i>
+                    </button>
+                </div>
+            </form>
+        </div>
+
+        <!-- SCREEN 2: Active Room & Live Video/Audio Grid -->
+        <div id="screen-room" class="w-full hidden flex-col space-y-6">
+            
+            <!-- Room Control Bar & Status -->
+            <div class="glass-panel p-4 rounded-xl flex flex-wrap items-center justify-between gap-4">
+                <div class="flex items-center space-x-4">
+                    <div class="p-2 rounded-lg bg-black border border-bordercolor">
+                        <i class="fa-solid fa-wave-square text-white"></i>
+                    </div>
+                    <div>
+                        <div class="text-xs text-zinc-400 font-mono">ACTIVE FREQUENCY CHANNEL</div>
+                        <div id="display-freq-name" class="font-mono font-bold text-lg tracking-wider text-white">201.04 MHz</div>
+                    </div>
+                </div>
+
+                <div class="flex items-center space-x-3">
+                    <div class="px-3 py-1.5 rounded-lg bg-black border border-bordercolor flex items-center space-x-2 text-xs font-mono">
+                        <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+                        <span id="participant-count">SECURE P2P MESH</span>
+                    </div>
+                    
+                    <!-- Lock Room Toggle -->
+                    <button id="lock-room-btn" onclick="toggleRoomLock()" class="px-4 py-2 rounded-lg border border-bordercolor bg-black hover:border-white text-xs font-mono transition-all flex items-center space-x-2">
+                        <i id="lock-icon" class="fa-solid fa-lock-open text-zinc-400"></i>
+                        <span id="lock-text">FREQUENCY UNLOCKED</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Video Grid Layout -->
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 min-h-[50vh]">
+                
+                <!-- Local User Video Tile -->
+                <div class="relative glass-panel rounded-2xl overflow-hidden flex flex-col justify-end aspect-video border border-bordercolor group shadow-2xl">
+                    <video id="local-video" autoplay playsinline muted class="absolute inset-0 w-full h-full object-cover transform -scale-x-100"></video>
+                    <!-- Fallback avatar if camera is off -->
+                    <div id="local-avatar" class="absolute inset-0 bg-zinc-950 flex flex-col items-center justify-center hidden">
+                        <div class="w-20 h-20 rounded-full bg-zinc-900 border border-zinc-800 flex items-center justify-center text-2xl font-mono text-zinc-400 mb-2">
+                            <span id="avatar-initial">U</span>
+                        </div>
+                        <span class="text-xs font-mono text-zinc-500">CAMERA MUTED</span>
+                    </div>
+                    <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent pointer-events-none"></div>
+                    <div class="relative p-4 flex justify-between items-center z-10">
+                        <div class="flex items-center space-x-2">
+                            <span class="w-2 h-2 rounded-full bg-white"></span>
+                            <span id="display-username" class="font-mono text-xs font-semibold text-white tracking-wide">YOU</span>
+                        </div>
+                        <div class="flex space-x-2">
+                            <span id="local-mic-status" class="px-2 py-0.5 rounded bg-black/60 border border-zinc-800 text-[10px] font-mono text-emerald-400"><i class="fa-solid fa-microphone"></i></span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Remote Simulated Peer Tile 1 -->
+                <div class="relative glass-panel rounded-2xl overflow-hidden flex flex-col justify-end aspect-video border border-bordercolor group">
+                    <div class="absolute inset-0 bg-zinc-950 flex flex-col items-center justify-center">
+                        <div class="w-20 h-20 rounded-full bg-zinc-900 border border-zinc-800 flex items-center justify-center text-xl font-mono text-zinc-400 mb-2">
+                            <i class="fa-solid fa-user text-zinc-500"></i>
+                        </div>
+                        <span class="text-xs font-mono text-zinc-500 animate-pulse">ESTABLISHING DIRECT P2P LINK...</span>
+                    </div>
+                    <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent pointer-events-none"></div>
+                    <div class="relative p-4 flex justify-between items-center z-10">
+                        <div class="flex items-center space-x-2">
+                            <span class="w-2 h-2 rounded-full bg-zinc-600"></span>
+                            <span class="font-mono text-xs font-semibold text-zinc-400 tracking-wide">FRIEND (REMOTE)</span>
+                        </div>
+                        <span class="px-2 py-0.5 rounded bg-black/60 border border-zinc-800 text-[10px] font-mono text-amber-500"><i class="fa-solid fa-microphone-slash"></i></span>
+                    </div>
+                </div>
+
+                <!-- Remote Simulated Peer Tile 2 / Placeholder -->
+                <div id="peer-slot-2" class="relative glass-panel rounded-2xl overflow-hidden flex flex-col items-center justify-center aspect-video border border-dashed border-bordercolor group bg-black/40">
+                    <div class="text-center p-6">
+                        <i class="fa-solid fa-shield text-zinc-700 text-3xl mb-2"></i>
+                        <p class="text-xs font-mono text-zinc-600">AWAITING ADDITIONAL FRIENDS...</p>
+                        <p class="text-[10px] font-mono text-zinc-700 mt-1">Untraceable WebRTC Encryption Active</p>
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- In-Call Control Dock (Centered bottom) -->
+            <div class="fixed bottom-6 left-1/2 transform -translate-x-1/2 z-50">
+                <div class="glass-panel px-6 py-3 rounded-full flex items-center space-x-4 shadow-2xl border border-bordercolor bg-black/90">
+                    <!-- Toggle Mic -->
+                    <button id="btn-toggle-mic" onclick="toggleMicrophone()" title="Toggle Mic" 
+                        class="w-12 h-12 rounded-full bg-zinc-900 hover:bg-white hover:text-black border border-bordercolor flex items-center justify-center transition-all">
+                        <i id="mic-icon" class="fa-solid fa-microphone text-sm"></i>
+                    </button>
+                    <!-- Toggle Camera -->
+                    <button id="btn-toggle-cam" onclick="toggleCamera()" title="Toggle Camera" 
+                        class="w-12 h-12 rounded-full bg-zinc-900 hover:bg-white hover:text-black border border-bordercolor flex items-center justify-center transition-all">
+                        <i id="cam-icon" class="fa-solid fa-video text-sm"></i>
+                    </button>
+                    <!-- Share Code Button -->
+                    <button onclick="copyChannelLink()" title="Copy Channel Code" 
+                        class="w-12 h-12 rounded-full bg-zinc-900 hover:bg-white hover:text-black border border-bordercolor flex items-center justify-center transition-all">
+                        <i class="fa-solid fa-share-nodes text-sm"></i>
+                    </button>
+                    <div class="w-[1px] h-8 bg-zinc-800"></div>
+                    <!-- Disconnect / Leave -->
+                    <button onclick="leaveFrequency()" title="Disconnect" 
+                        class="px-5 h-12 rounded-full bg-red-600/20 hover:bg-red-600 text-red-400 hover:text-white border border-red-900/50 font-mono text-xs font-semibold flex items-center space-x-2 transition-all">
+                        <i class="fa-solid fa-power-off"></i>
+                        <span class="hidden sm:inline">DISCONNECT</span>
+                    </button>
+                </div>
+            </div>
+
+        </div>
+
+    </main>
+
+    <!-- Footer info -->
+    <footer class="w-full border-t border-bordercolor py-4 text-center font-mono text-[10px] text-zinc-600">
+        OBSIDIAN FREQUENCY PROTOCOL // 100% UNTRACEABLE // DIRECT ENCRYPTED MESH
+    </footer>
+
+    <!-- Notification Toast Box -->
+    <div id="toast" class="fixed top-20 right-6 z-50 transform translate-x-full transition-transform duration-300 glass-panel border border-bordercolor px-4 py-3 rounded-xl flex items-center space-x-3 shadow-2xl">
+        <i id="toast-icon" class="fa-solid fa-circle-check text-emerald-400"></i>
+        <span id="toast-msg" class="text-xs font-mono text-white">Notification message</span>
+    </div>
+
+    <!-- JavaScript Application Logic -->
+    <script>
+        let localStream = null;
+        let isMicMuted = false;
+        let isCamOff = false;
+        let isRoomLocked = false;
+        let currentFrequency = "201.04";
+        let currentUsername = "";
+
+        function adjustFrequency(amount) {
+            const input = document.getElementById('frequency-input');
+            let current = parseFloat(input.value) || 201.04;
+            current = Math.max(100.00, Math.min(999.99, current + amount));
+            input.value = current.toFixed(2);
+        }
+
+        function randomizeFrequency() {
+            const randomFreq = (100 + Math.random() * 800).toFixed(2);
+            document.getElementById('frequency-input').value = randomFreq;
+        }
+
+        async function joinFrequency() {
+            const rawFreq = document.getElementById('frequency-input').value;
+            currentFrequency = parseFloat(rawFreq).toFixed(2);
+            currentUsername = document.getElementById('username-input').value.trim();
+            
+            if(!currentFrequency || !currentUsername) return;
+
+            // Update UI elements
+            document.getElementById('display-freq-name').innerText = `${currentFrequency} MHz`;
+            document.getElementById('display-username').innerText = currentUsername;
+            document.getElementById('avatar-initial').innerText = currentUsername.charAt(0).toUpperCase();
+            document.getElementById('nav-status').innerText = "SECURE P2P CONNECTED";
+            document.getElementById('nav-status').className = "text-emerald-400 font-bold";
+
+            // Switch screens
+            document.getElementById('screen-tuning').classList.add('hidden');
+            document.getElementById('screen-room').classList.remove('hidden');
+            document.getElementById('screen-room').classList.add('flex');
+
+            // Initialize Media Stream (Camera & Mic)
+            try {
+                localStream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
+                const videoElement = document.getElementById('local-video');
+                videoElement.srcObject = localStream;
+                showToast(`Tuned into secure untraceable frequency ${currentFrequency} MHz.`);
+            } catch (err) {
+                console.warn("Camera or microphone permission denied or unavailable:", err);
+                isCamOff = true;
+                document.getElementById('local-video').classList.add('hidden');
+                document.getElementById('local-avatar').classList.remove('hidden');
+                document.getElementById('cam-icon').className = "fa-solid fa-video-slash text-sm";
+                document.getElementById('btn-toggle-cam').classList.add('bg-zinc-800', 'text-red-400');
+                showToast("Camera access restricted. Operating audio-only.");
+            }
+        }
+
+        function toggleMicrophone() {
+            if (!localStream) {
+                isMicMuted = !isMicMuted;
+                updateMicUI();
+                return;
+            }
+            const audioTracks = localStream.getAudioTracks();
+            if (audioTracks.length > 0) {
+                audioTracks[0].enabled = !audioTracks[0].enabled;
+                isMicMuted = !audioTracks[0].enabled;
+                updateMicUI();
+            }
+        }
+
+        function updateMicUI() {
+            const btn = document.getElementById('btn-toggle-mic');
+            const icon = document.getElementById('mic-icon');
+            const statusTag = document.getElementById('local-mic-status');
+
+            if (isMicMuted) {
+                btn.classList.add('bg-zinc-800', 'text-red-400');
+                icon.className = "fa-solid fa-microphone-slash text-sm";
+                statusTag.innerHTML = '<i class="fa-solid fa-microphone-slash"></i>';
+                statusTag.className = "px-2 py-0.5 rounded bg-black/60 border border-zinc-800 text-[10px] font-mono text-red-500";
+                showToast("Microphone muted.");
+            } else {
+                btn.classList.remove('bg-zinc-800', 'text-red-400');
+                icon.className = "fa-solid fa-microphone text-sm";
+                statusTag.innerHTML = '<i class="fa-solid fa-microphone"></i>';
+                statusTag.className = "px-2 py-0.5 rounded bg-black/60 border border-zinc-800 text-[10px] font-mono text-emerald-400";
+                showToast("Microphone active.");
+            }
+        }
+
+        function toggleCamera() {
+            if (!localStream) {
+                showToast("No active camera stream available.");
+                return;
+            }
+            const videoTracks = localStream.getVideoTracks();
+            if (videoTracks.length > 0) {
+                videoTracks[0].enabled = !videoTracks[0].enabled;
+                isCamOff = !videoTracks[0].enabled;
+                const btn = document.getElementById('btn-toggle-cam');
+                const icon = document.getElementById('cam-icon');
+                const videoEl = document.getElementById('local-video');
+                const avatarEl = document.getElementById('local-avatar');
+
+                if (isCamOff) {
+                    btn.classList.add('bg-zinc-800', 'text-red-400');
+                    icon.className = "fa-solid fa-video-slash text-sm";
+                    videoEl.classList.add('hidden');
+                    avatarEl.classList.remove('hidden');
+                    showToast("Camera feed hidden.");
+                } else {
+                    btn.classList.remove('bg-zinc-800', 'text-red-400');
+                    icon.className = "fa-solid fa-video text-sm";
+                    videoEl.classList.remove('hidden');
+                    avatarEl.classList.add('hidden');
+                    showToast("Camera feed active.");
+                }
+            }
+        }
+
+        function toggleRoomLock() {
+            isRoomLocked = !isRoomLocked;
+            const btn = document.getElementById('lock-room-btn');
+            const icon = document.getElementById('lock-icon');
+            const text = document.getElementById('lock-text');
+
+            if (isRoomLocked) {
+                btn.classList.add('border-white', 'bg-zinc-900');
+                icon.className = "fa-solid fa-lock text-white";
+                text.innerText = "FREQUENCY LOCKED";
+                showToast("Frequency sealed. No new connections allowed.");
+            } else {
+                btn.classList.remove('border-white', 'bg-zinc-900');
+                icon.className = "fa-solid fa-lock-open text-zinc-400";
+                text.innerText = "FREQUENCY UNLOCKED";
+                showToast("Frequency open.");
+            }
+        }
+
+        function copyChannelLink() {
+            const shareText = `OBSIDIAN FREQUENCY: Tune into ${currentFrequency} MHz for secure untraceable P2P comms.`;
+            const dummy = document.createElement("textarea");
+            document.body.appendChild(dummy);
+            dummy.value = shareText;
+            dummy.select();
+            document.execCommand("copy");
+            document.body.removeChild(dummy);
+            showToast("Frequency coordinates copied to clipboard.");
+        }
+
+        function leaveFrequency() {
+            if (localStream) {
+                localStream.getTracks().forEach(track => track.stop());
+            }
+            document.getElementById('screen-room').classList.remove('flex');
+            document.getElementById('screen-room').classList.add('hidden');
+            document.getElementById('screen-tuning').classList.remove('hidden');
+            document.getElementById('nav-status').innerText = "STANDBY";
+            document.getElementById('nav-status').className = "text-white font-bold";
+            showToast("Disconnected from frequency.");
+        }
+
+        function showToast(message) {
+            const toast = document.getElementById('toast');
+            document.getElementById('toast-msg').innerText = message;
+            toast.classList.remove('translate-x-full');
+            setTimeout(() => {
+                toast.classList.add('translate-x-full');
+            }, 3500);
+        }
+    </script>
+</body>
+</html>
